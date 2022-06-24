@@ -16,8 +16,9 @@
     "websocket",
     "webrtc",
     "node",
-    "browser",
-    "library"
+    "library",
+    "browser"
+    
   ],
   "license": "MIT",
   "repository": {
