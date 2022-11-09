@@ -496,6 +496,7 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
       debug('preAnswer()');
       debug(options);
       options.preAnswer = true;
+      this.preAnsweredCall = true;
       this.answer(options);
     }
     /**
@@ -509,6 +510,20 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
 
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       debug('answer()');
+      debug(options);
+      debug(this.replyObject);
+
+      if (this.replyObject) {
+        this.reply(this.replyObject);
+        delete this.replyObject;
+        return;
+      }
+
+      if (this.preAnsweredCall && !options.preAnswer) {
+        this.answeredEarly = true;
+        return;
+      }
+
       var request = this._request;
       var extraHeaders = Utils.cloneArray(options.extraHeaders);
       var mediaConstraints = Utils.cloneObject(options.mediaConstraints);
@@ -758,17 +773,33 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
 
         _this3._handleSessionTimersInIncomingRequest(request, extraHeaders);
 
-        request.reply(200, null, extraHeaders, desc, function () {
-          _this3._status = C.STATUS_WAITING_FOR_ACK;
+        var replyObject = {
+          'code': 200,
+          'request': request,
+          'extraHeaders': extraHeaders,
+          'desc': desc
+        };
 
-          _this3._setInvite2xxTimer(request, desc);
+        if (!options.preAnswer || _this3.answeredEarly) {
+          _this3.reply(replyObject);
+        } else {
+          debug('This is a preAnswer() call');
+          _this3.replyObject = replyObject;
 
-          _this3._setACKTimer();
+          _this3.emit('answerReady', replyObject);
+        } // request.reply(200, null, extraHeaders,
+        //   desc,
+        //   () => {
+        //     this._status = C.STATUS_WAITING_FOR_ACK;
+        //     this._setInvite2xxTimer(request, desc);
+        //     this._setACKTimer();
+        //     this._accepted('local');
+        //   },
+        //   () => {
+        //     this._failed('system', null, JsSIP_C.causes.CONNECTION_ERROR);
+        //   }
+        // );
 
-          _this3._accepted('local');
-        }, function () {
-          _this3._failed('system', null, JsSIP_C.causes.CONNECTION_ERROR);
-        });
       })["catch"](function (error) {
         if (_this3._status === C.STATUS_TERMINATED) {
           return;
