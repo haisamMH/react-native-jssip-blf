@@ -1758,14 +1758,13 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
 
       this._connection.addEventListener('iceconnectionstatechange', function () {
         var state = _this13._connection.iceConnectionState; // TODO: Do more with different states.
-
-        if (state === 'failed') {
-          _this13.terminate({
-            cause: JsSIP_C.causes.RTP_TIMEOUT,
-            status_code: 408,
-            reason_phrase: JsSIP_C.causes.RTP_TIMEOUT
-          });
-        }
+        // if (state === 'failed') {
+        //   this.terminate({
+        //     cause: JsSIP_C.causes.RTP_TIMEOUT,
+        //     status_code: 408,
+        //     reason_phrase: JsSIP_C.causes.RTP_TIMEOUT
+        //   });
+        // }
       });
 
       debug('emit "peerconnection"');
