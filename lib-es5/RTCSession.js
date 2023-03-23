@@ -2473,8 +2473,8 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "_getDTMFRTPSender",
     value: function _getDTMFRTPSender() {
-      var sender = this._connection.getLocalStreams()[0].getAudioTracks().find(function (rtpSender) {
-        return rtpSender && rtpSender.kind === 'audio';
+      var sender = this._connection.getSenders().find(function (rtpSender) {
+        return rtpSender.track && rtpSender.track.kind === 'audio';
       });
 
       if (!(sender && sender.dtmf)) {
@@ -3166,8 +3166,8 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "_toggleMuteAudio",
     value: function _toggleMuteAudio(mute) {
-      var senders = this._connection.getLocalStreams()[0].getAudioTracks().filter(function (track) {
-        return track && track.kind === 'audio';
+      var senders = this._connection.getSenders().filter(function (sender) {
+        return sender.track && sender.track.kind === 'audio';
       });
 
       var _iterator8 = _createForOfIteratorHelper(senders),
@@ -3187,8 +3187,8 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "_toggleMuteVideo",
     value: function _toggleMuteVideo(mute) {
-      var senders = this._connection.getLocalStreams()[0].getVideoTracks().filter(function (track) {
-        return track && track.kind === 'video';
+      var senders = this._connection.getSenders().filter(function (sender) {
+        return sender.track && sender.track.kind === 'video';
       });
 
       var _iterator9 = _createForOfIteratorHelper(senders),
