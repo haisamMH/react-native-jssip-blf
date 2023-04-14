@@ -1,7 +1,6 @@
 "use strict";
 
 var pkg = require('../package.json');
-
 module.exports = {
   USER_AGENT: "".concat(pkg.title, " ").concat(pkg.version),
   // SIP scheme.
@@ -64,7 +63,6 @@ module.exports = {
     INFO: 'INFO',
     RFC2833: 'RFC2833'
   },
-
   /* SIP Response Reasons
    * DOC: https://www.iana.org/assignments/sip-parameters
    * Copied from https://github.com/versatica/OverSIP/blob/master/lib/oversip/sip/constants.rb#L7
