@@ -2780,7 +2780,7 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
         enableVideo = false;
       }
       this._toggleMuteAudio(!enableAudio);
-      this._toggleMuteVideo(!enableVideo);
+      // this._toggleMuteVideo(!enableVideo);
     }
 
     /**
