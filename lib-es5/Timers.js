@@ -1,8 +1,8 @@
 "use strict";
 
 var T1 = 500,
-    T2 = 4000,
-    T4 = 5000;
+  T2 = 4000,
+  T4 = 5000;
 module.exports = {
   T1: T1,
   T2: T2,
@@ -17,5 +17,4 @@ module.exports = {
   TIMER_L: 64 * T1,
   TIMER_M: 64 * T1,
   PROVISIONAL_RESPONSE_INTERVAL: 60000 // See RFC 3261 Section 13.3.1.1
-
 };

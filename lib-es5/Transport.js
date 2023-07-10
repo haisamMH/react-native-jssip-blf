@@ -1,24 +1,20 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var Socket = require('./Socket');
-
 var debug = require('debug')('JsSIP:Transport');
-
 var debugerror = require('debug')('JsSIP:ERROR:Transport');
-
 var JsSIP_C = require('./Constants');
-
 debugerror.log = console.warn.bind(console);
+
 /**
  * Constants
  */
-
 var C = {
   // Transport status.
   STATUS_CONNECTED: 0,
@@ -35,68 +31,64 @@ var C = {
     max_interval: JsSIP_C.CONNECTION_RECOVERY_MAX_INTERVAL
   }
 };
+
 /*
  * Manages one or multiple JsSIP.Socket instances.
  * Is reponsible for transport recovery logic among all socket instances.
  *
  * @socket JsSIP::Socket instance
  */
-
 module.exports = /*#__PURE__*/function () {
   function Transport(sockets) {
     var recovery_options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : C.recovery_options;
-
     _classCallCheck(this, Transport);
-
     debug('new()');
-    this.status = C.STATUS_DISCONNECTED; // Current socket.
+    this.status = C.STATUS_DISCONNECTED;
 
-    this.socket = null; // Socket collection.
+    // Current socket.
+    this.socket = null;
 
+    // Socket collection.
     this.sockets = [];
     this.recovery_options = recovery_options;
     this.recover_attempts = 0;
     this.recovery_timer = null;
-    this.close_requested = false; // It seems that TextDecoder is not available in some versions of React-Native.
-    // See https://github.com/versatica/JsSIP/issues/695
+    this.close_requested = false;
 
+    // It seems that TextDecoder is not available in some versions of React-Native.
+    // See https://github.com/versatica/JsSIP/issues/695
     try {
       this.textDecoder = new TextDecoder('utf8');
     } catch (error) {
       debugerror("cannot use TextDecoder: ".concat(error));
     }
-
     if (typeof sockets === 'undefined') {
       throw new TypeError('Invalid argument.' + ' undefined \'sockets\' argument');
     }
-
     if (!(sockets instanceof Array)) {
       sockets = [sockets];
     }
-
     sockets.forEach(function (socket) {
       if (!Socket.isSocket(socket.socket)) {
         throw new TypeError('Invalid argument.' + ' invalid \'JsSIP.Socket\' instance');
       }
-
       if (socket.weight && !Number(socket.weight)) {
         throw new TypeError('Invalid argument.' + ' \'weight\' attribute is not a number');
       }
-
       this.sockets.push({
         socket: socket.socket,
         weight: socket.weight || 0,
         status: C.SOCKET_STATUS_READY
       });
-    }, this); // Get the socket with higher weight.
+    }, this);
 
+    // Get the socket with higher weight.
     this._getSocket();
   }
+
   /**
    * Instance Methods
    */
-
-
   _createClass(Transport, [{
     key: "via_transport",
     get: function get() {
@@ -115,8 +107,8 @@ module.exports = /*#__PURE__*/function () {
   }, {
     key: "clearTimer",
     value: function clearTimer() {
-      debug('clearTimer() clear timer'); // Clear recovery_timer.
-
+      debug('clearTimer() clear timer');
+      // Clear recovery_timer.
       if (this.recovery_timer !== null) {
         clearTimeout(this.recovery_timer);
         this.recovery_timer = null;
@@ -126,7 +118,6 @@ module.exports = /*#__PURE__*/function () {
     key: "connect",
     value: function connect() {
       debug('connect()');
-
       if (this.isConnected()) {
         debug('Transport is already connected');
         return;
@@ -134,14 +125,12 @@ module.exports = /*#__PURE__*/function () {
         debug('Transport is connecting');
         return;
       }
-
       this.close_requested = false;
       this.status = C.STATUS_CONNECTING;
       this.onconnecting({
         socket: this.socket,
         attempts: this.recover_attempts
       });
-
       if (!this.close_requested) {
         // Bind socket event callbacks.
         this.socket.onconnect = this._onConnect.bind(this);
@@ -149,7 +138,6 @@ module.exports = /*#__PURE__*/function () {
         this.socket.ondata = this._onData.bind(this);
         this.socket.connect();
       }
-
       return;
     }
   }, {
@@ -158,20 +146,18 @@ module.exports = /*#__PURE__*/function () {
       debug('close()');
       this.close_requested = true;
       this.recover_attempts = 0;
-      this.status = C.STATUS_DISCONNECTED; // Clear recovery_timer.
+      this.status = C.STATUS_DISCONNECTED;
 
+      // Clear recovery_timer.
       if (this.recovery_timer !== null) {
         clearTimeout(this.recovery_timer);
         this.recovery_timer = null;
-      } // Unbind socket event callbacks.
+      }
 
-
+      // Unbind socket event callbacks.
       this.socket.onconnect = function () {};
-
       this.socket.ondisconnect = function () {};
-
       this.socket.ondata = function () {};
-
       this.socket.disconnect();
       this.ondisconnect({
         socket: this.socket,
@@ -182,12 +168,10 @@ module.exports = /*#__PURE__*/function () {
     key: "send",
     value: function send(data) {
       debug('send()');
-
       if (!this.isConnected()) {
         debugerror('unable to send message, transport is not connected');
         return false;
       }
-
       var message = data.toString();
       debug("sending message:\n\n".concat(message, "\n"));
       return this.socket.send(message);
@@ -202,56 +186,52 @@ module.exports = /*#__PURE__*/function () {
     value: function isConnecting() {
       return this.status === C.STATUS_CONNECTING;
     }
+
     /**
      * Private API.
      */
-
   }, {
     key: "_reconnect",
     value: function _reconnect() {
       var _this = this;
-
       this.recover_attempts += 1;
       var k = Math.floor(Math.random() * Math.pow(2, this.recover_attempts) + 1);
-
       if (k < this.recovery_options.min_interval) {
         k = this.recovery_options.min_interval;
       } else if (k > this.recovery_options.max_interval) {
         k = this.recovery_options.max_interval;
       }
-
       debug("reconnection attempt: ".concat(this.recover_attempts, ". next connection attempt in ").concat(k, " seconds"));
       this.recovery_timer = setTimeout(function () {
         if (!_this.close_requested && !(_this.isConnected() || _this.isConnecting())) {
           // Get the next available socket with higher weight.
-          _this._getSocket(); // Connect the socket.
+          _this._getSocket();
 
-
+          // Connect the socket.
           _this.connect();
         }
       }, k * 1000);
     }
+
     /**
     * Private API.
     */
-
   }, {
     key: "_reconnect_force",
     value: function _reconnect_force() {
       debug("force reconnection attempt");
-
       if (!this.close_requested && !(this.isConnected() || this.isConnecting())) {
         // Get the next available socket with higher weight.
-        this._getSocket(); // Connect the socket.
+        this._getSocket();
 
-
+        // Connect the socket.
         this.connect();
       }
     }
+
     /**
      * get the next available socket with higher weight
      */
-
   }, {
     key: "_getSocket",
     value: function _getSocket() {
@@ -267,37 +247,35 @@ module.exports = /*#__PURE__*/function () {
           candidates.push(socket);
         }
       });
-
       if (candidates.length === 0) {
         // All sockets have failed. reset sockets status.
         this.sockets.forEach(function (socket) {
           socket.status = C.SOCKET_STATUS_READY;
-        }); // Get next available socket.
+        });
 
+        // Get next available socket.
         this._getSocket();
-
         return;
       }
-
       var idx = Math.floor(Math.random() * candidates.length);
       this.socket = candidates[idx].socket;
     }
+
     /**
      * Socket Event Handlers
      */
-
   }, {
     key: "_onConnect",
     value: function _onConnect() {
       debug("socket connected");
       this.recover_attempts = 0;
-      this.status = C.STATUS_CONNECTED; // Clear recovery_timer.
+      this.status = C.STATUS_CONNECTED;
 
+      // Clear recovery_timer.
       if (this.recovery_timer !== null) {
         clearTimeout(this.recovery_timer);
         this.recovery_timer = null;
       }
-
       this.onconnect({
         socket: this
       });
@@ -313,10 +291,11 @@ module.exports = /*#__PURE__*/function () {
         code: code,
         reason: reason
       });
-
       if (this.close_requested) {
         return;
-      } // Update socket status.
+      }
+
+      // Update socket status.
       else {
         this.sockets.forEach(function (socket) {
           if (this.socket === socket.socket) {
@@ -324,7 +303,6 @@ module.exports = /*#__PURE__*/function () {
           }
         }, this);
       }
-
       this._reconnect(error);
     }
   }, {
@@ -334,7 +312,9 @@ module.exports = /*#__PURE__*/function () {
       if (data === '\r\n') {
         debug('received message with CRLF Keep Alive response');
         return;
-      } // Binary message.
+      }
+
+      // Binary message.
       else if (typeof data !== 'string') {
         try {
           if (this.textDecoder) data = this.textDecoder.decode(data);else data = String.fromCharCode.apply(null, new Uint8Array(data));
@@ -342,19 +322,18 @@ module.exports = /*#__PURE__*/function () {
           debug('received binary message failed to be converted into string,' + ' message discarded');
           return;
         }
-
         debug("received binary message:\n\n".concat(data, "\n"));
-      } // Text message.
+      }
+
+      // Text message.
       else {
         debug("received text message:\n\n".concat(data, "\n"));
       }
-
       this.ondata({
         transport: this,
         message: data
       });
     }
   }]);
-
   return Transport;
 }();

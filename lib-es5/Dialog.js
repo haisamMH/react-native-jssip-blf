@@ -1,52 +1,43 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var SIPMessage = require('./SIPMessage');
-
 var JsSIP_C = require('./Constants');
-
 var Transactions = require('./Transactions');
-
 var Dialog_RequestSender = require('./Dialog/RequestSender');
-
 var Utils = require('./Utils');
-
 var debug = require('debug')('JsSIP:Dialog');
-
 var C = {
   // Dialog states.
   STATUS_EARLY: 1,
   STATUS_CONFIRMED: 2
-}; // RFC 3261 12.1.
+};
 
+// RFC 3261 12.1.
 module.exports = /*#__PURE__*/function () {
   function Dialog(owner, message, type) {
     var state = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : C.STATUS_CONFIRMED;
-
     _classCallCheck(this, Dialog);
-
     this._owner = owner;
     this._ua = owner._ua;
     this._uac_pending_reply = false;
     this._uas_pending_reply = false;
-
     if (!message.hasHeader('contact')) {
       return {
         error: 'unable to create a Dialog without Contact header field'
       };
     }
-
     if (message instanceof SIPMessage.IncomingResponse) {
       state = message.status_code < 200 ? C.STATUS_EARLY : C.STATUS_CONFIRMED;
     }
+    var contact = message.parseHeader('contact');
 
-    var contact = message.parseHeader('contact'); // RFC 3261 12.1.1.
-
+    // RFC 3261 12.1.1.
     if (type === 'UAS') {
       this._id = {
         call_id: message.call_id,
@@ -63,7 +54,8 @@ module.exports = /*#__PURE__*/function () {
       this._remote_target = contact.uri;
       this._route_set = message.getHeaders('record-route');
       this._ack_seqnum = this._remote_seqnum;
-    } // RFC 3261 12.1.2.
+    }
+    // RFC 3261 12.1.2.
     else if (type === 'UAC') {
       this._id = {
         call_id: message.call_id,
@@ -81,12 +73,9 @@ module.exports = /*#__PURE__*/function () {
       this._route_set = message.getHeaders('record-route').reverse();
       this._ack_seqnum = null;
     }
-
     this._ua.newDialog(this);
-
     debug("new ".concat(type, " dialog created with status ").concat(this._state === C.STATUS_EARLY ? 'EARLY' : 'CONFIRMED'));
   }
-
   _createClass(Dialog, [{
     key: "id",
     get: function get() {
@@ -123,7 +112,6 @@ module.exports = /*#__PURE__*/function () {
     value: function update(message, type) {
       this._state = C.STATUS_CONFIRMED;
       debug("dialog ".concat(this._id.toString(), "  changed to CONFIRMED state"));
-
       if (type === 'UAC') {
         // RFC 3261 13.2.2.4.
         this._route_set = message.getHeaders('record-route').reverse();
@@ -133,29 +121,26 @@ module.exports = /*#__PURE__*/function () {
     key: "terminate",
     value: function terminate() {
       debug("dialog ".concat(this._id.toString(), " deleted"));
-
       this._ua.destroyDialog(this);
     }
   }, {
     key: "sendRequest",
     value: function sendRequest(method) {
       var _this = this;
-
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var extraHeaders = Utils.cloneArray(options.extraHeaders);
       var eventHandlers = Utils.cloneObject(options.eventHandlers);
       var body = options.body || null;
+      var request = this._createRequest(method, extraHeaders, body);
 
-      var request = this._createRequest(method, extraHeaders, body); // Increase the local CSeq on authentication.
-
-
+      // Increase the local CSeq on authentication.
       eventHandlers.onAuthenticated = function () {
         _this._local_seqnum += 1;
       };
-
       var request_sender = new Dialog_RequestSender(this, request, eventHandlers);
-      request_sender.send(); // Return the instance of OutgoingRequest.
+      request_sender.send();
 
+      // Return the instance of OutgoingRequest.
       return request;
     }
   }, {
@@ -164,28 +149,27 @@ module.exports = /*#__PURE__*/function () {
       // Check in-dialog request.
       if (!this._checkInDialogRequest(request)) {
         return;
-      } // ACK received. Cleanup this._ack_seqnum.
+      }
 
-
+      // ACK received. Cleanup this._ack_seqnum.
       if (request.method === JsSIP_C.ACK && this._ack_seqnum !== null) {
         this._ack_seqnum = null;
-      } // INVITE received. Set this._ack_seqnum.
+      }
+      // INVITE received. Set this._ack_seqnum.
       else if (request.method === JsSIP_C.INVITE) {
         this._ack_seqnum = request.cseq;
       }
-
       this._owner.receiveRequest(request);
-    } // RFC 3261 12.2.1.1.
+    }
 
+    // RFC 3261 12.2.1.1.
   }, {
     key: "_createRequest",
     value: function _createRequest(method, extraHeaders, body) {
       extraHeaders = Utils.cloneArray(extraHeaders);
-
       if (!this._local_seqnum) {
         this._local_seqnum = Math.floor(Math.random() * 10000);
       }
-
       var cseq = method === JsSIP_C.CANCEL || method === JsSIP_C.ACK ? this._local_seqnum : this._local_seqnum += 1;
       var request = new SIPMessage.OutgoingRequest(method, this._remote_target, this._ua, {
         'cseq': cseq,
@@ -197,13 +181,13 @@ module.exports = /*#__PURE__*/function () {
         'route_set': this._route_set
       }, extraHeaders, body);
       return request;
-    } // RFC 3261 12.2.2.
+    }
 
+    // RFC 3261 12.2.2.
   }, {
     key: "_checkInDialogRequest",
     value: function _checkInDialogRequest(request) {
       var _this2 = this;
-
       if (!this._remote_seqnum) {
         this._remote_seqnum = request.cseq;
       } else if (request.cseq < this._remote_seqnum) {
@@ -219,9 +203,9 @@ module.exports = /*#__PURE__*/function () {
         }
       } else if (request.cseq > this._remote_seqnum) {
         this._remote_seqnum = request.cseq;
-      } // RFC3261 14.2 Modifying an Existing Session -UAS BEHAVIOR-.
+      }
 
-
+      // RFC3261 14.2 Modifying an Existing Session -UAS BEHAVIOR-.
       if (request.method === JsSIP_C.INVITE || request.method === JsSIP_C.UPDATE && request.body) {
         if (this._uac_pending_reply === true) {
           request.reply(491);
@@ -231,18 +215,16 @@ module.exports = /*#__PURE__*/function () {
           return false;
         } else {
           this._uas_pending_reply = true;
-
           var stateChanged = function stateChanged() {
             if (request.server_transaction.state === Transactions.C.STATUS_ACCEPTED || request.server_transaction.state === Transactions.C.STATUS_COMPLETED || request.server_transaction.state === Transactions.C.STATUS_TERMINATED) {
               request.server_transaction.removeListener('stateChanged', stateChanged);
               _this2._uas_pending_reply = false;
             }
           };
-
           request.server_transaction.on('stateChanged', stateChanged);
-        } // RFC3261 12.2.2 Replace the dialog`s remote target URI if the request is accepted.
+        }
 
-
+        // RFC3261 12.2.2 Replace the dialog`s remote target URI if the request is accepted.
         if (request.hasHeader('contact')) {
           request.server_transaction.on('stateChanged', function () {
             if (request.server_transaction.state === Transactions.C.STATUS_ACCEPTED) {
@@ -260,16 +242,15 @@ module.exports = /*#__PURE__*/function () {
           });
         }
       }
-
       return true;
     }
   }], [{
     key: "C",
-    get: // Expose C object.
+    get:
+    // Expose C object.
     function get() {
       return C;
     }
   }]);
-
   return Dialog;
 }();

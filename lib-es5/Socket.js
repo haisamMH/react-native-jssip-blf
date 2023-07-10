@@ -1,12 +1,10 @@
 "use strict";
 
 var Utils = require('./Utils');
-
 var Grammar = require('./Grammar');
-
 var debugerror = require('debug')('JsSIP:ERROR:Socket');
-
 debugerror.log = console.warn.bind(console);
+
 /**
  * Interface documentation: https://jssip.net/documentation/$last_version/api/socket/
  *
@@ -31,33 +29,30 @@ exports.isSocket = function (socket) {
   if (Array.isArray(socket)) {
     return false;
   }
-
   if (typeof socket === 'undefined') {
     debugerror('undefined JsSIP.Socket instance');
     return false;
-  } // Check Properties.
+  }
 
-
+  // Check Properties.
   try {
     if (!Utils.isString(socket.url)) {
       debugerror('missing or invalid JsSIP.Socket url property');
       throw new Error();
     }
-
     if (!Utils.isString(socket.via_transport)) {
       debugerror('missing or invalid JsSIP.Socket via_transport property');
       throw new Error();
     }
-
     if (Grammar.parse(socket.sip_uri, 'SIP_URI') === -1) {
       debugerror('missing or invalid JsSIP.Socket sip_uri property');
       throw new Error();
     }
   } catch (e) {
     return false;
-  } // Check Methods.
+  }
 
-
+  // Check Methods.
   try {
     ['connect', 'disconnect', 'send'].forEach(function (method) {
       if (!Utils.isFunction(socket[method])) {
@@ -68,6 +63,5 @@ exports.isSocket = function (socket) {
   } catch (e) {
     return false;
   }
-
   return true;
 };

@@ -1,91 +1,56 @@
 "use strict";
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 var JsSIP_C = require('./Constants');
-
 var SIPMessage = require('./SIPMessage');
-
 var Utils = require('./Utils');
+var debug = require('debug')('JsSIP:sanityCheck');
 
-var debug = require('debug')('JsSIP:sanityCheck'); // Checks for requests and responses.
+// Checks for requests and responses.
+var all = [minimumHeaders];
 
+// Checks for requests.
+var requests = [rfc3261_8_2_2_1, rfc3261_16_3_4, rfc3261_18_3_request, rfc3261_8_2_2_2];
 
-var all = [minimumHeaders]; // Checks for requests.
+// Checks for responses.
+var responses = [rfc3261_8_1_3_3, rfc3261_18_3_response];
 
-var requests = [rfc3261_8_2_2_1, rfc3261_16_3_4, rfc3261_18_3_request, rfc3261_8_2_2_2]; // Checks for responses.
-
-var responses = [rfc3261_8_1_3_3, rfc3261_18_3_response]; // local variables.
-
+// local variables.
 var message;
 var ua;
 var transport;
-
 module.exports = function (m, u, t) {
   message = m;
   ua = u;
   transport = t;
-
-  var _iterator = _createForOfIteratorHelper(all),
-      _step;
-
-  try {
-    for (_iterator.s(); !(_step = _iterator.n()).done;) {
-      var _check2 = _step.value;
-
+  for (var _i = 0, _all = all; _i < _all.length; _i++) {
+    var check = _all[_i];
+    if (check() === false) {
+      return false;
+    }
+  }
+  if (message instanceof SIPMessage.IncomingRequest) {
+    for (var _i2 = 0, _requests = requests; _i2 < _requests.length; _i2++) {
+      var _check = _requests[_i2];
+      if (_check() === false) {
+        return false;
+      }
+    }
+  } else if (message instanceof SIPMessage.IncomingResponse) {
+    for (var _i3 = 0, _responses = responses; _i3 < _responses.length; _i3++) {
+      var _check2 = _responses[_i3];
       if (_check2() === false) {
         return false;
       }
     }
-  } catch (err) {
-    _iterator.e(err);
-  } finally {
-    _iterator.f();
   }
 
-  if (message instanceof SIPMessage.IncomingRequest) {
-    var _iterator2 = _createForOfIteratorHelper(requests),
-        _step2;
-
-    try {
-      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-        var check = _step2.value;
-
-        if (check() === false) {
-          return false;
-        }
-      }
-    } catch (err) {
-      _iterator2.e(err);
-    } finally {
-      _iterator2.f();
-    }
-  } else if (message instanceof SIPMessage.IncomingResponse) {
-    var _iterator3 = _createForOfIteratorHelper(responses),
-        _step3;
-
-    try {
-      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-        var _check = _step3.value;
-
-        if (_check() === false) {
-          return false;
-        }
-      }
-    } catch (err) {
-      _iterator3.e(err);
-    } finally {
-      _iterator3.f();
-    }
-  } // Everything is OK.
-
-
+  // Everything is OK.
   return true;
 };
+
 /*
  * Sanity Check for incoming Messages
  *
@@ -104,16 +69,14 @@ module.exports = function (m, u, t) {
  * All:
  *  - Minimum headers in a SIP message
  */
+
 // Sanity Check functions for requests.
-
-
 function rfc3261_8_2_2_1() {
   if (message.s('to').uri.scheme !== 'sip') {
     reply(416);
     return false;
   }
 }
-
 function rfc3261_16_3_4() {
   if (!message.to_tag) {
     if (message.call_id.substr(0, 5) === ua.configuration.jssip_id) {
@@ -122,40 +85,38 @@ function rfc3261_16_3_4() {
     }
   }
 }
-
 function rfc3261_18_3_request() {
   var len = Utils.str_utf8_length(message.body);
   var contentLength = message.getHeader('content-length');
-
   if (len < contentLength) {
     reply(400);
     return false;
   }
 }
-
 function rfc3261_8_2_2_2() {
   var fromTag = message.from_tag;
   var call_id = message.call_id;
   var cseq = message.cseq;
-  var tr; // Accept any in-dialog request.
+  var tr;
 
+  // Accept any in-dialog request.
   if (message.to_tag) {
     return;
-  } // INVITE request.
+  }
 
-
+  // INVITE request.
   if (message.method === JsSIP_C.INVITE) {
     // If the branch matches the key of any IST then assume it is a retransmission
     // and ignore the INVITE.
     // TODO: we should reply the last response.
     if (ua._transactions.ist[message.via_branch]) {
       return false;
-    } // Otherwise check whether it is a merged request.
+    }
+    // Otherwise check whether it is a merged request.
     else {
       for (var transaction in ua._transactions.ist) {
         if (Object.prototype.hasOwnProperty.call(ua._transactions.ist, transaction)) {
           tr = ua._transactions.ist[transaction];
-
           if (tr.request.from_tag === fromTag && tr.request.call_id === call_id && tr.request.cseq === cseq) {
             reply(482);
             return false;
@@ -163,18 +124,22 @@ function rfc3261_8_2_2_2() {
         }
       }
     }
-  } // Non INVITE request.
+  }
+
+  // Non INVITE request.
+
   // If the branch matches the key of any NIST then assume it is a retransmission
   // and ignore the request.
   // TODO: we should reply the last response.
   else if (ua._transactions.nist[message.via_branch]) {
     return false;
-  } // Otherwise check whether it is a merged request.
+  }
+
+  // Otherwise check whether it is a merged request.
   else {
     for (var _transaction in ua._transactions.nist) {
       if (Object.prototype.hasOwnProperty.call(ua._transactions.nist, _transaction)) {
         tr = ua._transactions.nist[_transaction];
-
         if (tr.request.from_tag === fromTag && tr.request.call_id === call_id && tr.request.cseq === cseq) {
           reply(482);
           return false;
@@ -182,66 +147,57 @@ function rfc3261_8_2_2_2() {
       }
     }
   }
-} // Sanity Check functions for responses.
+}
 
-
+// Sanity Check functions for responses.
 function rfc3261_8_1_3_3() {
   if (message.getHeaders('via').length > 1) {
     debug('more than one Via header field present in the response, dropping the response');
     return false;
   }
 }
-
 function rfc3261_18_3_response() {
   var len = Utils.str_utf8_length(message.body),
-      contentLength = message.getHeader('content-length');
-
+    contentLength = message.getHeader('content-length');
   if (len < contentLength) {
     debug('message body length is lower than the value in Content-Length header field, dropping the response');
     return false;
   }
-} // Sanity Check functions for requests and responses.
+}
 
-
+// Sanity Check functions for requests and responses.
 function minimumHeaders() {
   var mandatoryHeaders = ['from', 'to', 'call_id', 'cseq', 'via'];
-
-  for (var _i = 0, _mandatoryHeaders = mandatoryHeaders; _i < _mandatoryHeaders.length; _i++) {
-    var header = _mandatoryHeaders[_i];
-
+  for (var _i4 = 0, _mandatoryHeaders = mandatoryHeaders; _i4 < _mandatoryHeaders.length; _i4++) {
+    var header = _mandatoryHeaders[_i4];
     if (!message.hasHeader(header)) {
       debug("missing mandatory header field : ".concat(header, ", dropping the response"));
       return false;
     }
   }
-} // Reply.
+}
 
-
+// Reply.
 function reply(status_code) {
   var vias = message.getHeaders('via');
   var to;
   var response = "SIP/2.0 ".concat(status_code, " ").concat(JsSIP_C.REASON_PHRASE[status_code], "\r\n");
-
-  var _iterator4 = _createForOfIteratorHelper(vias),
-      _step4;
-
+  var _iterator = _createForOfIteratorHelper(vias),
+    _step;
   try {
-    for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-      var via = _step4.value;
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var via = _step.value;
       response += "Via: ".concat(via, "\r\n");
     }
   } catch (err) {
-    _iterator4.e(err);
+    _iterator.e(err);
   } finally {
-    _iterator4.f();
+    _iterator.f();
   }
-
   to = message.getHeader('To');
-
   if (!message.to_tag) {
     to += ";tag=".concat(Utils.newTag());
   }
-
   response += "To: ".concat(to, "\r\n");
   response += "From: ".concat(message.getHeader('From'), "\r\n");
   response += "Call-ID: ".concat(message.call_id, "\r\n");

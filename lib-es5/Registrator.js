@@ -1,57 +1,56 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var Utils = require('./Utils');
-
 var JsSIP_C = require('./Constants');
-
 var SIPMessage = require('./SIPMessage');
-
 var RequestSender = require('./RequestSender');
-
 var debug = require('debug')('JsSIP:Registrator');
-
 var MIN_REGISTER_EXPIRES = 10; // In seconds.
 
 module.exports = /*#__PURE__*/function () {
   function Registrator(ua, transport) {
     _classCallCheck(this, Registrator);
-
     var reg_id = 1; // Force reg_id to 1.
 
     this._ua = ua;
     this._transport = transport;
     this._registrar = ua.configuration.registrar_server;
-    this._expires = ua.configuration.register_expires; // Call-ID and CSeq values RFC3261 10.2.
+    this._expires = ua.configuration.register_expires;
 
+    // Call-ID and CSeq values RFC3261 10.2.
     this._call_id = Utils.createRandomToken(22);
     this._cseq = 0;
     this._to_uri = ua.configuration.uri;
-    this._registrationTimer = null; // Ongoing Register request.
+    this._registrationTimer = null;
 
-    this._registering = false; // Set status.
+    // Ongoing Register request.
+    this._registering = false;
 
-    this._registered = false; // Contact header.
+    // Set status.
+    this._registered = false;
 
-    this._contact = this._ua.contact.toString(); // Sip.ice media feature tag (RFC 5768).
+    // Contact header.
+    this._contact = this._ua.contact.toString();
 
-    this._contact += ';+sip.ice'; // Custom headers for REGISTER and un-REGISTER.
+    // Sip.ice media feature tag (RFC 5768).
+    this._contact += ';+sip.ice';
 
-    this._extraHeaders = []; // Custom Contact header params for REGISTER and un-REGISTER.
+    // Custom headers for REGISTER and un-REGISTER.
+    this._extraHeaders = [];
 
+    // Custom Contact header params for REGISTER and un-REGISTER.
     this._extraContactParams = '';
-
     if (reg_id) {
       this._contact += ";reg-id=".concat(reg_id);
       this._contact += ";+sip.instance=\"<urn:uuid:".concat(this._ua.configuration.instance_id, ">\"");
     }
   }
-
   _createClass(Registrator, [{
     key: "registered",
     get: function get() {
@@ -63,7 +62,6 @@ module.exports = /*#__PURE__*/function () {
       if (!Array.isArray(extraHeaders)) {
         extraHeaders = [];
       }
-
       this._extraHeaders = extraHeaders.slice();
     }
   }, {
@@ -71,16 +69,14 @@ module.exports = /*#__PURE__*/function () {
     value: function setExtraContactParams(extraContactParams) {
       if (!(extraContactParams instanceof Object)) {
         extraContactParams = {};
-      } // Reset it.
+      }
 
-
+      // Reset it.
       this._extraContactParams = '';
-
       for (var param_key in extraContactParams) {
         if (Object.prototype.hasOwnProperty.call(extraContactParams, param_key)) {
           var param_value = extraContactParams[param_key];
           this._extraContactParams += ";".concat(param_key);
-
           if (param_value) {
             this._extraContactParams += "=".concat(param_value);
           }
@@ -91,14 +87,11 @@ module.exports = /*#__PURE__*/function () {
     key: "register",
     value: function register() {
       var _this = this;
-
       if (this._registering) {
         debug('Register request in progress...');
         return;
       }
-
       var extraHeaders = this._extraHeaders.slice();
-
       extraHeaders.push("Contact: ".concat(this._contact, ";expires=").concat(this._expires).concat(this._extraContactParams));
       extraHeaders.push("Expires: ".concat(this._expires));
       var request = new SIPMessage.OutgoingRequest(JsSIP_C.REGISTER, this._registrar, this._ua, {
@@ -121,112 +114,101 @@ module.exports = /*#__PURE__*/function () {
           // Discard responses to older REGISTER/un-REGISTER requests.
           if (response.cseq !== _this._cseq) {
             return;
-          } // Clear registration timer.
+          }
 
-
+          // Clear registration timer.
           if (_this._registrationTimer !== null) {
             clearTimeout(_this._registrationTimer);
             _this._registrationTimer = null;
           }
-
           switch (true) {
             case /^1[0-9]{2}$/.test(response.status_code):
               {
                 // Ignore provisional responses.
                 break;
               }
-
             case /^2[0-9]{2}$/.test(response.status_code):
               {
                 _this._registering = false;
-
                 if (!response.hasHeader('Contact')) {
                   debug('no Contact header in response to REGISTER, response ignored');
                   break;
                 }
-
                 var contacts = response.headers['Contact'].reduce(function (a, b) {
                   return a.concat(b.parsed);
-                }, []); // Get the Contact pointing to us and update the expires value accordingly.
+                }, []);
 
+                // Get the Contact pointing to us and update the expires value accordingly.
                 var contact = contacts.find(function (element) {
                   return element.uri.user === _this._ua.contact.uri.user;
                 });
-
                 if (!contact) {
                   debug('no Contact header pointing to us, response ignored');
                   break;
                 }
-
                 var expires = contact.getParam('expires');
-
                 if (!expires && response.hasHeader('expires')) {
                   expires = response.getHeader('expires');
                 }
-
                 if (!expires) {
                   expires = _this._expires;
                 }
-
                 expires = Number(expires);
                 if (expires < MIN_REGISTER_EXPIRES) expires = MIN_REGISTER_EXPIRES;
-                var timeout = expires > 64 ? expires * 1000 / 2 + Math.floor((expires / 2 - 32) * 1000 * Math.random()) : expires * 1000 - 5000; // Re-Register or emit an event before the expiration interval has elapsed.
+                var timeout = expires > 64 ? expires * 1000 / 2 + Math.floor((expires / 2 - 32) * 1000 * Math.random()) : expires * 1000 - 5000;
+
+                // Re-Register or emit an event before the expiration interval has elapsed.
                 // For that, decrease the expires value. ie: 3 seconds.
-
                 _this._registrationTimer = setTimeout(function () {
-                  _this._registrationTimer = null; // If there are no listeners for registrationExpiring, renew registration.
+                  _this._registrationTimer = null;
+                  // If there are no listeners for registrationExpiring, renew registration.
                   // If there are listeners, let the function listening do the register call.
-
                   if (_this._ua.listeners('registrationExpiring').length === 0) {
                     _this.register();
                   } else {
                     _this._ua.emit('registrationExpiring');
                   }
-                }, timeout); // Save gruu values.
+                }, timeout);
 
+                // Save gruu values.
                 if (contact.hasParam('temp-gruu')) {
                   _this._ua.contact.temp_gruu = contact.getParam('temp-gruu').replace(/"/g, '');
                 }
-
                 if (contact.hasParam('pub-gruu')) {
                   _this._ua.contact.pub_gruu = contact.getParam('pub-gruu').replace(/"/g, '');
-                } // if (!this._registered)
+                }
+
+                // if (!this._registered)
                 // {
-
-
                 _this._registered = true;
-
                 _this._ua.registered({
                   response: response
-                }); // }
-
+                });
+                // }
 
                 break;
               }
-            // Interval too brief RFC3261 10.2.8.
 
+            // Interval too brief RFC3261 10.2.8.
             case /^423$/.test(response.status_code):
               {
                 if (response.hasHeader('min-expires')) {
                   // Increase our registration interval to the suggested minimum.
                   _this._expires = Number(response.getHeader('min-expires'));
-                  if (_this._expires < MIN_REGISTER_EXPIRES) _this._expires = MIN_REGISTER_EXPIRES; // Attempt the registration again immediately.
+                  if (_this._expires < MIN_REGISTER_EXPIRES) _this._expires = MIN_REGISTER_EXPIRES;
 
+                  // Attempt the registration again immediately.
                   _this.register();
                 } else {
                   // This response MUST contain a Min-Expires header field.
                   debug('423 response received for REGISTER without Min-Expires');
-
                   _this._registrationFailure(response, JsSIP_C.causes.SIP_FAILURE_CODE);
                 }
-
                 break;
               }
-
             default:
               {
                 var cause = Utils.sipErrorCause(response.status_code);
-
                 _this._registrationFailure(response, cause);
               }
           }
@@ -239,29 +221,24 @@ module.exports = /*#__PURE__*/function () {
     key: "unregister",
     value: function unregister() {
       var _this2 = this;
-
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
       if (!this._registered) {
         debug('already unregistered');
         return;
       }
+      this._registered = false;
 
-      this._registered = false; // Clear the registration timer.
-
+      // Clear the registration timer.
       if (this._registrationTimer !== null) {
         clearTimeout(this._registrationTimer);
         this._registrationTimer = null;
       }
-
       var extraHeaders = this._extraHeaders.slice();
-
       if (options.all) {
         extraHeaders.push("Contact: *".concat(this._extraContactParams));
       } else {
         extraHeaders.push("Contact: ".concat(this._contact, ";expires=0").concat(this._extraContactParams));
       }
-
       extraHeaders.push('Expires: 0');
       var request = new SIPMessage.OutgoingRequest(JsSIP_C.REGISTER, this._registrar, this._ua, {
         'to_uri': this._to_uri,
@@ -284,16 +261,12 @@ module.exports = /*#__PURE__*/function () {
             case /^1[0-9]{2}$/.test(response.status_code):
               // Ignore provisional responses.
               break;
-
             case /^2[0-9]{2}$/.test(response.status_code):
               _this2._unregistered(response);
-
               break;
-
             default:
               {
                 var cause = Utils.sipErrorCause(response.status_code);
-
                 _this2._unregistered(response, cause);
               }
           }
@@ -312,15 +285,12 @@ module.exports = /*#__PURE__*/function () {
     key: "onTransportClosed",
     value: function onTransportClosed() {
       this._registering = false;
-
       if (this._registrationTimer !== null) {
         clearTimeout(this._registrationTimer);
         this._registrationTimer = null;
       }
-
       if (this._registered) {
         this._registered = false;
-
         this._ua.unregistered({});
       }
     }
@@ -328,15 +298,12 @@ module.exports = /*#__PURE__*/function () {
     key: "_registrationFailure",
     value: function _registrationFailure(response, cause) {
       this._registering = false;
-
       this._ua.registrationFailed({
         response: response || null,
         cause: cause
       });
-
       if (this._registered) {
         this._registered = false;
-
         this._ua.unregistered({
           response: response || null,
           cause: cause
@@ -348,13 +315,11 @@ module.exports = /*#__PURE__*/function () {
     value: function _unregistered(response, cause) {
       this._registering = false;
       this._registered = false;
-
       this._ua.unregistered({
         response: response || null,
         cause: cause || null
       });
     }
   }]);
-
   return Registrator;
 }();

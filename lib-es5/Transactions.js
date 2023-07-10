@@ -1,45 +1,27 @@
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 var EventEmitter = require('events').EventEmitter;
-
 var JsSIP_C = require('./Constants');
-
 var SIPMessage = require('./SIPMessage');
-
 var Timers = require('./Timers');
-
 var debugnict = require('debug')('JsSIP:NonInviteClientTransaction');
-
 var debugict = require('debug')('JsSIP:InviteClientTransaction');
-
 var debugact = require('debug')('JsSIP:AckClientTransaction');
-
 var debugnist = require('debug')('JsSIP:NonInviteServerTransaction');
-
 var debugist = require('debug')('JsSIP:InviteServerTransaction');
-
 var C = {
   // Transaction states.
   STATUS_TRYING: 1,
@@ -55,17 +37,12 @@ var C = {
   INVITE_CLIENT: 'ict',
   INVITE_SERVER: 'ist'
 };
-
 var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
   _inherits(NonInviteClientTransaction, _EventEmitter);
-
   var _super = _createSuper(NonInviteClientTransaction);
-
   function NonInviteClientTransaction(ua, transport, request, eventHandlers) {
     var _this;
-
     _classCallCheck(this, NonInviteClientTransaction);
-
     _this = _super.call(this);
     _this.type = C.NON_INVITE_CLIENT;
     _this.id = "z9hG4bK".concat(Math.floor(Math.random() * 10000000));
@@ -75,14 +52,10 @@ var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
     _this.eventHandlers = eventHandlers;
     var via = "SIP/2.0/".concat(transport.via_transport);
     via += " ".concat(ua.configuration.via_host, ";branch=").concat(_this.id);
-
     _this.request.setHeader('via', via);
-
     _this.ua.newTransaction(_assertThisInitialized(_this));
-
     return _this;
   }
-
   _createClass(NonInviteClientTransaction, [{
     key: "C",
     get: function get() {
@@ -98,12 +71,10 @@ var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
     key: "send",
     value: function send() {
       var _this2 = this;
-
       this.stateChanged(C.STATUS_TRYING);
       this.F = setTimeout(function () {
         _this2.timer_F();
       }, Timers.TIMER_F);
-
       if (!this.transport.send(this.request)) {
         this.onTransportError();
       }
@@ -136,9 +107,7 @@ var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
     key: "receiveResponse",
     value: function receiveResponse(response) {
       var _this3 = this;
-
       var status_code = response.status_code;
-
       if (status_code < 200) {
         switch (this.state) {
           case C.STATUS_TRYING:
@@ -153,38 +122,29 @@ var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
           case C.STATUS_PROCEEDING:
             this.stateChanged(C.STATUS_COMPLETED);
             clearTimeout(this.F);
-
             if (status_code === 408) {
               this.eventHandlers.onRequestTimeout();
             } else {
               this.eventHandlers.onReceiveResponse(response);
             }
-
             this.K = setTimeout(function () {
               _this3.timer_K();
             }, Timers.TIMER_K);
             break;
-
           case C.STATUS_COMPLETED:
             break;
         }
       }
     }
   }]);
-
   return NonInviteClientTransaction;
 }(EventEmitter);
-
 var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
   _inherits(InviteClientTransaction, _EventEmitter2);
-
   var _super2 = _createSuper(InviteClientTransaction);
-
   function InviteClientTransaction(ua, transport, request, eventHandlers) {
     var _this4;
-
     _classCallCheck(this, InviteClientTransaction);
-
     _this4 = _super2.call(this);
     _this4.type = C.INVITE_CLIENT;
     _this4.id = "z9hG4bK".concat(Math.floor(Math.random() * 10000000));
@@ -195,14 +155,10 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
     request.transaction = _assertThisInitialized(_this4);
     var via = "SIP/2.0/".concat(transport.via_transport);
     via += " ".concat(ua.configuration.via_host, ";branch=").concat(_this4.id);
-
     _this4.request.setHeader('via', via);
-
     _this4.ua.newTransaction(_assertThisInitialized(_this4));
-
     return _this4;
   }
-
   _createClass(InviteClientTransaction, [{
     key: "C",
     get: function get() {
@@ -218,12 +174,10 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
     key: "send",
     value: function send() {
       var _this5 = this;
-
       this.stateChanged(C.STATUS_CALLING);
       this.B = setTimeout(function () {
         _this5.timer_B();
       }, Timers.TIMER_B);
-
       if (!this.transport.send(this.request)) {
         this.onTransportError();
       }
@@ -234,33 +188,31 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
       clearTimeout(this.B);
       clearTimeout(this.D);
       clearTimeout(this.M);
-
       if (this.state !== C.STATUS_ACCEPTED) {
         debugict("transport error occurred, deleting transaction ".concat(this.id));
         this.eventHandlers.onTransportError();
       }
-
       this.stateChanged(C.STATUS_TERMINATED);
       this.ua.destroyTransaction(this);
-    } // RFC 6026 7.2.
+    }
 
+    // RFC 6026 7.2.
   }, {
     key: "timer_M",
     value: function timer_M() {
       debugict("Timer M expired for transaction ".concat(this.id));
-
       if (this.state === C.STATUS_ACCEPTED) {
         clearTimeout(this.B);
         this.stateChanged(C.STATUS_TERMINATED);
         this.ua.destroyTransaction(this);
       }
-    } // RFC 3261 17.1.1.
+    }
 
+    // RFC 3261 17.1.1.
   }, {
     key: "timer_B",
     value: function timer_B() {
       debugict("Timer B expired for transaction ".concat(this.id));
-
       if (this.state === C.STATUS_CALLING) {
         this.stateChanged(C.STATUS_TERMINATED);
         this.ua.destroyTransaction(this);
@@ -279,7 +231,6 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
     key: "sendACK",
     value: function sendACK(response) {
       var _this6 = this;
-
       var ack = new SIPMessage.OutgoingRequest(JsSIP_C.ACK, this.request.ruri, this.ua, {
         'route_set': this.request.getHeaders('route'),
         'call_id': this.request.getHeader('call-id'),
@@ -300,7 +251,6 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
       if (this.state !== C.STATUS_PROCEEDING) {
         return;
       }
-
       var cancel = new SIPMessage.OutgoingRequest(JsSIP_C.CANCEL, this.request.ruri, this.ua, {
         'route_set': this.request.getHeaders('route'),
         'call_id': this.request.getHeader('call-id'),
@@ -309,27 +259,22 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
       cancel.setHeader('from', this.request.getHeader('from'));
       cancel.setHeader('via', this.request.getHeader('via'));
       cancel.setHeader('to', this.request.getHeader('to'));
-
       if (reason) {
         cancel.setHeader('reason', reason);
       }
-
       this.transport.send(cancel);
     }
   }, {
     key: "receiveResponse",
     value: function receiveResponse(response) {
       var _this7 = this;
-
       var status_code = response.status_code;
-
       if (status_code >= 100 && status_code <= 199) {
         switch (this.state) {
           case C.STATUS_CALLING:
             this.stateChanged(C.STATUS_PROCEEDING);
             this.eventHandlers.onReceiveResponse(response);
             break;
-
           case C.STATUS_PROCEEDING:
             this.eventHandlers.onReceiveResponse(response);
             break;
@@ -344,7 +289,6 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
             }, Timers.TIMER_M);
             this.eventHandlers.onReceiveResponse(response);
             break;
-
           case C.STATUS_ACCEPTED:
             this.eventHandlers.onReceiveResponse(response);
             break;
@@ -357,7 +301,6 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
             this.sendACK(response);
             this.eventHandlers.onReceiveResponse(response);
             break;
-
           case C.STATUS_COMPLETED:
             this.sendACK(response);
             break;
@@ -365,20 +308,14 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
       }
     }
   }]);
-
   return InviteClientTransaction;
 }(EventEmitter);
-
 var AckClientTransaction = /*#__PURE__*/function (_EventEmitter3) {
   _inherits(AckClientTransaction, _EventEmitter3);
-
   var _super3 = _createSuper(AckClientTransaction);
-
   function AckClientTransaction(ua, transport, request, eventHandlers) {
     var _this8;
-
     _classCallCheck(this, AckClientTransaction);
-
     _this8 = _super3.call(this);
     _this8.id = "z9hG4bK".concat(Math.floor(Math.random() * 10000000));
     _this8.transport = transport;
@@ -386,12 +323,9 @@ var AckClientTransaction = /*#__PURE__*/function (_EventEmitter3) {
     _this8.eventHandlers = eventHandlers;
     var via = "SIP/2.0/".concat(transport.via_transport);
     via += " ".concat(ua.configuration.via_host, ";branch=").concat(_this8.id);
-
     _this8.request.setHeader('via', via);
-
     return _this8;
   }
-
   _createClass(AckClientTransaction, [{
     key: "C",
     get: function get() {
@@ -411,20 +345,14 @@ var AckClientTransaction = /*#__PURE__*/function (_EventEmitter3) {
       this.eventHandlers.onTransportError();
     }
   }]);
-
   return AckClientTransaction;
 }(EventEmitter);
-
 var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
   _inherits(NonInviteServerTransaction, _EventEmitter4);
-
   var _super4 = _createSuper(NonInviteServerTransaction);
-
   function NonInviteServerTransaction(ua, transport, request) {
     var _this9;
-
     _classCallCheck(this, NonInviteServerTransaction);
-
     _this9 = _super4.call(this);
     _this9.type = C.NON_INVITE_SERVER;
     _this9.id = request.via_branch;
@@ -437,7 +365,6 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
     ua.newTransaction(_assertThisInitialized(_this9));
     return _this9;
   }
-
   _createClass(NonInviteServerTransaction, [{
     key: "C",
     get: function get() {
@@ -471,7 +398,6 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
     key: "receiveResponse",
     value: function receiveResponse(status_code, response, onSuccess, onFailure) {
       var _this10 = this;
-
       if (status_code === 100) {
         /* RFC 4320 4.1
          * 'A SIP element MUST NOT
@@ -481,26 +407,20 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
         switch (this.state) {
           case C.STATUS_TRYING:
             this.stateChanged(C.STATUS_PROCEEDING);
-
             if (!this.transport.send(response)) {
               this.onTransportError();
             }
-
             break;
-
           case C.STATUS_PROCEEDING:
             this.last_response = response;
-
             if (!this.transport.send(response)) {
               this.onTransportError();
-
               if (onFailure) {
                 onFailure();
               }
             } else if (onSuccess) {
               onSuccess();
             }
-
             break;
         }
       } else if (status_code >= 200 && status_code <= 699) {
@@ -512,39 +432,29 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
             this.J = setTimeout(function () {
               _this10.timer_J();
             }, Timers.TIMER_J);
-
             if (!this.transport.send(response)) {
               this.onTransportError();
-
               if (onFailure) {
                 onFailure();
               }
             } else if (onSuccess) {
               onSuccess();
             }
-
             break;
-
           case C.STATUS_COMPLETED:
             break;
         }
       }
     }
   }]);
-
   return NonInviteServerTransaction;
 }(EventEmitter);
-
 var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
   _inherits(InviteServerTransaction, _EventEmitter5);
-
   var _super5 = _createSuper(InviteServerTransaction);
-
   function InviteServerTransaction(ua, transport, request) {
     var _this11;
-
     _classCallCheck(this, InviteServerTransaction);
-
     _this11 = _super5.call(this);
     _this11.type = C.INVITE_SERVER;
     _this11.id = request.via_branch;
@@ -559,7 +469,6 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
     request.reply(100);
     return _this11;
   }
-
   _createClass(InviteServerTransaction, [{
     key: "C",
     get: function get() {
@@ -575,11 +484,9 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
     key: "timer_H",
     value: function timer_H() {
       debugist("Timer H expired for transaction ".concat(this.id));
-
       if (this.state === C.STATUS_COMPLETED) {
         debugist('ACK not received, dialog will be terminated');
       }
-
       this.stateChanged(C.STATUS_TERMINATED);
       this.ua.destroyTransaction(this);
     }
@@ -588,13 +495,13 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
     value: function timer_I() {
       this.stateChanged(C.STATUS_TERMINATED);
       this.ua.destroyTransaction(this);
-    } // RFC 6026 7.1.
+    }
 
+    // RFC 6026 7.1.
   }, {
     key: "timer_L",
     value: function timer_L() {
       debugist("Timer L expired for transaction ".concat(this.id));
-
       if (this.state === C.STATUS_ACCEPTED) {
         this.stateChanged(C.STATUS_TERMINATED);
         this.ua.destroyTransaction(this);
@@ -606,12 +513,10 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
       if (!this.transportError) {
         this.transportError = true;
         debugist("transport error occurred, deleting transaction ".concat(this.id));
-
         if (this.resendProvisionalTimer !== null) {
           clearInterval(this.resendProvisionalTimer);
           this.resendProvisionalTimer = null;
         }
-
         clearTimeout(this.L);
         clearTimeout(this.H);
         clearTimeout(this.I);
@@ -625,25 +530,23 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
       if (!this.transport.send(this.last_response)) {
         this.onTransportError();
       }
-    } // INVITE Server Transaction RFC 3261 17.2.1.
+    }
 
+    // INVITE Server Transaction RFC 3261 17.2.1.
   }, {
     key: "receiveResponse",
     value: function receiveResponse(status_code, response, onSuccess, onFailure) {
       var _this12 = this;
-
       if (status_code >= 100 && status_code <= 199) {
         switch (this.state) {
           case C.STATUS_PROCEEDING:
             if (!this.transport.send(response)) {
               this.onTransportError();
             }
-
             this.last_response = response;
             break;
         }
       }
-
       if (status_code > 100 && status_code <= 199 && this.state === C.STATUS_PROCEEDING) {
         // Trigger the resendProvisionalTimer only for the first non 100 provisional response.
         if (this.resendProvisionalTimer === null) {
@@ -659,26 +562,22 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
             this.L = setTimeout(function () {
               _this12.timer_L();
             }, Timers.TIMER_L);
-
             if (this.resendProvisionalTimer !== null) {
               clearInterval(this.resendProvisionalTimer);
               this.resendProvisionalTimer = null;
             }
 
           /* falls through */
-
           case C.STATUS_ACCEPTED:
             // Note that this point will be reached for proceeding this.state also.
             if (!this.transport.send(response)) {
               this.onTransportError();
-
               if (onFailure) {
                 onFailure();
               }
             } else if (onSuccess) {
               onSuccess();
             }
-
             break;
         }
       } else if (status_code >= 300 && status_code <= 699) {
@@ -688,10 +587,8 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
               clearInterval(this.resendProvisionalTimer);
               this.resendProvisionalTimer = null;
             }
-
             if (!this.transport.send(response)) {
               this.onTransportError();
-
               if (onFailure) {
                 onFailure();
               }
@@ -700,18 +597,15 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
               this.H = setTimeout(function () {
                 _this12.timer_H();
               }, Timers.TIMER_H);
-
               if (onSuccess) {
                 onSuccess();
               }
             }
-
             break;
         }
       }
     }
   }]);
-
   return InviteServerTransaction;
 }(EventEmitter);
 /**
@@ -732,36 +626,30 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
  *  _true_  retransmission
  *  _false_ new request
  */
-
-
 function checkTransaction(_ref, request) {
   var _transactions = _ref._transactions;
   var tr;
-
   switch (request.method) {
     case JsSIP_C.INVITE:
       tr = _transactions.ist[request.via_branch];
-
       if (tr) {
         switch (tr.state) {
           case C.STATUS_PROCEEDING:
             tr.transport.send(tr.last_response);
             break;
+
           // RFC 6026 7.1 Invite retransmission.
           // Received while in C.STATUS_ACCEPTED state. Absorb it.
-
           case C.STATUS_ACCEPTED:
             break;
         }
-
         return true;
       }
-
       break;
-
     case JsSIP_C.ACK:
-      tr = _transactions.ist[request.via_branch]; // RFC 6026 7.1.
+      tr = _transactions.ist[request.via_branch];
 
+      // RFC 6026 7.1.
       if (tr) {
         if (tr.state === C.STATUS_ACCEPTED) {
           return false;
@@ -772,19 +660,16 @@ function checkTransaction(_ref, request) {
           }, Timers.TIMER_I);
           return true;
         }
-      } // ACK to 2XX Response.
+      }
+      // ACK to 2XX Response.
       else {
         return false;
       }
-
       break;
-
     case JsSIP_C.CANCEL:
       tr = _transactions.ist[request.via_branch];
-
       if (tr) {
         request.reply_sl(200);
-
         if (tr.state === C.STATUS_PROCEEDING) {
           return false;
         } else {
@@ -794,29 +679,23 @@ function checkTransaction(_ref, request) {
         request.reply_sl(481);
         return true;
       }
-
     default:
       // Non-INVITE Server Transaction RFC 3261 17.2.2.
       tr = _transactions.nist[request.via_branch];
-
       if (tr) {
         switch (tr.state) {
           case C.STATUS_TRYING:
             break;
-
           case C.STATUS_PROCEEDING:
           case C.STATUS_COMPLETED:
             tr.transport.send(tr.last_response);
             break;
         }
-
         return true;
       }
-
       break;
   }
 }
-
 module.exports = {
   C: C,
   NonInviteClientTransaction: NonInviteClientTransaction,

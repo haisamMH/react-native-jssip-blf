@@ -1,30 +1,24 @@
 "use strict";
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 var Grammar = require('./Grammar');
-
 var debug = require('debug')('JsSIP:WebSocketInterface');
-
 var debugerror = require('debug')('JsSIP:ERROR:WebSocketInterface');
-
 debugerror.log = console.warn.bind(console);
-
 module.exports = /*#__PURE__*/function () {
   function WebSocketInterface(url) {
     _classCallCheck(this, WebSocketInterface);
-
     debug('new() [url:"%s"]', url);
     this._url = url;
     this._sip_uri = null;
     this._via_transport = null;
     this._ws = null;
     var parsed_url = Grammar.parse(url, 'absoluteURI');
-
     if (parsed_url === -1) {
       debugerror("invalid WebSocket URI: ".concat(url));
       throw new TypeError("Invalid argument: ".concat(url));
@@ -36,7 +30,6 @@ module.exports = /*#__PURE__*/function () {
       this._via_transport = parsed_url.scheme.toUpperCase();
     }
   }
-
   _createClass(WebSocketInterface, [{
     key: "via_transport",
     get: function get() {
@@ -59,7 +52,6 @@ module.exports = /*#__PURE__*/function () {
     key: "connect",
     value: function connect() {
       debug('connect()');
-
       if (this.isConnected()) {
         debug("WebSocket ".concat(this._url, " is already connected"));
         return;
@@ -67,13 +59,10 @@ module.exports = /*#__PURE__*/function () {
         debug("WebSocket ".concat(this._url, " is connecting"));
         return;
       }
-
       if (this._ws) {
         this.disconnect();
       }
-
       debug("connecting to WebSocket ".concat(this._url));
-
       try {
         this._ws = new WebSocket(this._url, 'sip');
         this._ws.binaryType = 'arraybuffer';
@@ -89,19 +78,13 @@ module.exports = /*#__PURE__*/function () {
     key: "disconnect",
     value: function disconnect() {
       debug('disconnect()');
-
       if (this._ws) {
         // Unbind websocket event callbacks.
         this._ws.onopen = function () {};
-
         this._ws.onclose = function () {};
-
         this._ws.onmessage = function () {};
-
         this._ws.onerror = function () {};
-
         this._ws.close();
-
         this._ws = null;
       }
     }
@@ -109,10 +92,8 @@ module.exports = /*#__PURE__*/function () {
     key: "send",
     value: function send(message) {
       debug('send()');
-
       if (this.isConnected()) {
         this._ws.send(message);
-
         return true;
       } else {
         debugerror('unable to send message, WebSocket is not open');
@@ -129,10 +110,10 @@ module.exports = /*#__PURE__*/function () {
     value: function isConnecting() {
       return this._ws && this._ws.readyState === this._ws.CONNECTING;
     }
+
     /**
      * WebSocket Event Handlers
      */
-
   }, {
     key: "_onOpen",
     value: function _onOpen() {
@@ -143,14 +124,12 @@ module.exports = /*#__PURE__*/function () {
     key: "_onClose",
     value: function _onClose(_ref) {
       var wasClean = _ref.wasClean,
-          code = _ref.code,
-          reason = _ref.reason;
+        code = _ref.code,
+        reason = _ref.reason;
       debug("WebSocket ".concat(this._url, " closed"));
-
       if (wasClean === false) {
         debug('WebSocket abrupt disconnection');
       }
-
       var data = {
         socket: this,
         error: !wasClean,
@@ -172,6 +151,5 @@ module.exports = /*#__PURE__*/function () {
       debugerror("WebSocket ".concat(this._url, " error: ").concat(e));
     }
   }]);
-
   return WebSocketInterface;
 }();
