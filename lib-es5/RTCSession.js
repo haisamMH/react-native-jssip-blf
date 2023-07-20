@@ -2869,15 +2869,15 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "_toggleMuteAudio",
     value: function _toggleMuteAudio(mute) {
-      var senders = this._connection.getSenders().filter(function (sender) {
-        return sender.track && sender.track.kind === 'audio';
-      });
+      var senders = this._connection.getSenders();
       var _iterator8 = _createForOfIteratorHelper(senders),
         _step8;
       try {
         for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
           var sender = _step8.value;
-          sender.track.enabled = !mute;
+          if (sender.track && sender.track.kind === 'audio') {
+            sender.track.enabled = !mute;
+          }
         }
       } catch (err) {
         _iterator8.e(err);
@@ -2888,15 +2888,15 @@ module.exports = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "_toggleMuteVideo",
     value: function _toggleMuteVideo(mute) {
-      var senders = this._connection.getSenders().filter(function (sender) {
-        return sender.track && sender.track.kind === 'video';
-      });
+      var senders = this._connection.getSenders();
       var _iterator9 = _createForOfIteratorHelper(senders),
         _step9;
       try {
         for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
           var sender = _step9.value;
-          sender.track.enabled = !mute;
+          if (sender.track && sender.track.kind === 'video') {
+            sender.track.enabled = !mute;
+          }
         }
       } catch (err) {
         _iterator9.e(err);
