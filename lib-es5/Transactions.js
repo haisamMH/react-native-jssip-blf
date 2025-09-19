@@ -1,18 +1,19 @@
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _readOnlyError(r) { throw new TypeError('"' + r + '" is read-only'); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 var EventEmitter = require('events').EventEmitter;
 var JsSIP_C = require('./Constants');
 var SIPMessage = require('./SIPMessage');
@@ -38,12 +39,10 @@ var C = {
   INVITE_SERVER: 'ist'
 };
 var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
-  _inherits(NonInviteClientTransaction, _EventEmitter);
-  var _super = _createSuper(NonInviteClientTransaction);
   function NonInviteClientTransaction(ua, transport, request, eventHandlers) {
     var _this;
     _classCallCheck(this, NonInviteClientTransaction);
-    _this = _super.call(this);
+    _this = _callSuper(this, NonInviteClientTransaction);
     _this.type = C.NON_INVITE_CLIENT;
     _this.id = "z9hG4bK".concat(Math.floor(Math.random() * 10000000));
     _this.ua = ua;
@@ -53,10 +52,11 @@ var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
     var via = "SIP/2.0/".concat(transport.via_transport);
     via += " ".concat(ua.configuration.via_host, ";branch=").concat(_this.id);
     _this.request.setHeader('via', via);
-    _this.ua.newTransaction(_assertThisInitialized(_this));
+    _this.ua.newTransaction(_this);
     return _this;
   }
-  _createClass(NonInviteClientTransaction, [{
+  _inherits(NonInviteClientTransaction, _EventEmitter);
+  return _createClass(NonInviteClientTransaction, [{
     key: "C",
     get: function get() {
       return C;
@@ -137,29 +137,27 @@ var NonInviteClientTransaction = /*#__PURE__*/function (_EventEmitter) {
       }
     }
   }]);
-  return NonInviteClientTransaction;
 }(EventEmitter);
 var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
-  _inherits(InviteClientTransaction, _EventEmitter2);
-  var _super2 = _createSuper(InviteClientTransaction);
   function InviteClientTransaction(ua, transport, request, eventHandlers) {
     var _this4;
     _classCallCheck(this, InviteClientTransaction);
-    _this4 = _super2.call(this);
+    _this4 = _callSuper(this, InviteClientTransaction);
     _this4.type = C.INVITE_CLIENT;
     _this4.id = "z9hG4bK".concat(Math.floor(Math.random() * 10000000));
     _this4.ua = ua;
     _this4.transport = transport;
     _this4.request = request;
     _this4.eventHandlers = eventHandlers;
-    request.transaction = _assertThisInitialized(_this4);
+    request.transaction = _this4;
     var via = "SIP/2.0/".concat(transport.via_transport);
     via += " ".concat(ua.configuration.via_host, ";branch=").concat(_this4.id);
     _this4.request.setHeader('via', via);
-    _this4.ua.newTransaction(_assertThisInitialized(_this4));
+    _this4.ua.newTransaction(_this4);
     return _this4;
   }
-  _createClass(InviteClientTransaction, [{
+  _inherits(InviteClientTransaction, _EventEmitter2);
+  return _createClass(InviteClientTransaction, [{
     key: "C",
     get: function get() {
       return C;
@@ -308,15 +306,12 @@ var InviteClientTransaction = /*#__PURE__*/function (_EventEmitter2) {
       }
     }
   }]);
-  return InviteClientTransaction;
 }(EventEmitter);
 var AckClientTransaction = /*#__PURE__*/function (_EventEmitter3) {
-  _inherits(AckClientTransaction, _EventEmitter3);
-  var _super3 = _createSuper(AckClientTransaction);
   function AckClientTransaction(ua, transport, request, eventHandlers) {
     var _this8;
     _classCallCheck(this, AckClientTransaction);
-    _this8 = _super3.call(this);
+    _this8 = _callSuper(this, AckClientTransaction);
     _this8.id = "z9hG4bK".concat(Math.floor(Math.random() * 10000000));
     _this8.transport = transport;
     _this8.request = request;
@@ -326,7 +321,8 @@ var AckClientTransaction = /*#__PURE__*/function (_EventEmitter3) {
     _this8.request.setHeader('via', via);
     return _this8;
   }
-  _createClass(AckClientTransaction, [{
+  _inherits(AckClientTransaction, _EventEmitter3);
+  return _createClass(AckClientTransaction, [{
     key: "C",
     get: function get() {
       return C;
@@ -345,27 +341,25 @@ var AckClientTransaction = /*#__PURE__*/function (_EventEmitter3) {
       this.eventHandlers.onTransportError();
     }
   }]);
-  return AckClientTransaction;
 }(EventEmitter);
 var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
-  _inherits(NonInviteServerTransaction, _EventEmitter4);
-  var _super4 = _createSuper(NonInviteServerTransaction);
   function NonInviteServerTransaction(ua, transport, request) {
     var _this9;
     _classCallCheck(this, NonInviteServerTransaction);
-    _this9 = _super4.call(this);
+    _this9 = _callSuper(this, NonInviteServerTransaction);
     _this9.type = C.NON_INVITE_SERVER;
     _this9.id = request.via_branch;
     _this9.ua = ua;
     _this9.transport = transport;
     _this9.request = request;
     _this9.last_response = '';
-    request.server_transaction = _assertThisInitialized(_this9);
+    request.server_transaction = _this9;
     _this9.state = C.STATUS_TRYING;
-    ua.newTransaction(_assertThisInitialized(_this9));
+    ua.newTransaction(_this9);
     return _this9;
   }
-  _createClass(NonInviteServerTransaction, [{
+  _inherits(NonInviteServerTransaction, _EventEmitter4);
+  return _createClass(NonInviteServerTransaction, [{
     key: "C",
     get: function get() {
       return C;
@@ -397,7 +391,7 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
   }, {
     key: "receiveResponse",
     value: function receiveResponse(status_code, response, onSuccess, onFailure) {
-      var _this10 = this;
+      var _this0 = this;
       if (status_code === 100) {
         /* RFC 4320 4.1
          * 'A SIP element MUST NOT
@@ -430,7 +424,7 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
             this.stateChanged(C.STATUS_COMPLETED);
             this.last_response = response;
             this.J = setTimeout(function () {
-              _this10.timer_J();
+              _this0.timer_J();
             }, Timers.TIMER_J);
             if (!this.transport.send(response)) {
               this.onTransportError();
@@ -447,29 +441,27 @@ var NonInviteServerTransaction = /*#__PURE__*/function (_EventEmitter4) {
       }
     }
   }]);
-  return NonInviteServerTransaction;
 }(EventEmitter);
 var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
-  _inherits(InviteServerTransaction, _EventEmitter5);
-  var _super5 = _createSuper(InviteServerTransaction);
   function InviteServerTransaction(ua, transport, request) {
-    var _this11;
+    var _this1;
     _classCallCheck(this, InviteServerTransaction);
-    _this11 = _super5.call(this);
-    _this11.type = C.INVITE_SERVER;
-    _this11.id = request.via_branch;
-    _this11.ua = ua;
-    _this11.transport = transport;
-    _this11.request = request;
-    _this11.last_response = '';
-    request.server_transaction = _assertThisInitialized(_this11);
-    _this11.state = C.STATUS_PROCEEDING;
-    ua.newTransaction(_assertThisInitialized(_this11));
-    _this11.resendProvisionalTimer = null;
+    _this1 = _callSuper(this, InviteServerTransaction);
+    _this1.type = C.INVITE_SERVER;
+    _this1.id = request.via_branch;
+    _this1.ua = ua;
+    _this1.transport = transport;
+    _this1.request = request;
+    _this1.last_response = '';
+    request.server_transaction = _this1;
+    _this1.state = C.STATUS_PROCEEDING;
+    ua.newTransaction(_this1);
+    _this1.resendProvisionalTimer = null;
     request.reply(100);
-    return _this11;
+    return _this1;
   }
-  _createClass(InviteServerTransaction, [{
+  _inherits(InviteServerTransaction, _EventEmitter5);
+  return _createClass(InviteServerTransaction, [{
     key: "C",
     get: function get() {
       return C;
@@ -536,7 +528,7 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
   }, {
     key: "receiveResponse",
     value: function receiveResponse(status_code, response, onSuccess, onFailure) {
-      var _this12 = this;
+      var _this10 = this;
       if (status_code >= 100 && status_code <= 199) {
         switch (this.state) {
           case C.STATUS_PROCEEDING:
@@ -551,7 +543,7 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
         // Trigger the resendProvisionalTimer only for the first non 100 provisional response.
         if (this.resendProvisionalTimer === null) {
           this.resendProvisionalTimer = setInterval(function () {
-            _this12.resend_provisional();
+            _this10.resend_provisional();
           }, Timers.PROVISIONAL_RESPONSE_INTERVAL);
         }
       } else if (status_code >= 200 && status_code <= 299) {
@@ -560,7 +552,7 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
             this.stateChanged(C.STATUS_ACCEPTED);
             this.last_response = response;
             this.L = setTimeout(function () {
-              _this12.timer_L();
+              _this10.timer_L();
             }, Timers.TIMER_L);
             if (this.resendProvisionalTimer !== null) {
               clearInterval(this.resendProvisionalTimer);
@@ -595,7 +587,7 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
             } else {
               this.stateChanged(C.STATUS_COMPLETED);
               this.H = setTimeout(function () {
-                _this12.timer_H();
+                _this10.timer_H();
               }, Timers.TIMER_H);
               if (onSuccess) {
                 onSuccess();
@@ -606,7 +598,6 @@ var InviteServerTransaction = /*#__PURE__*/function (_EventEmitter5) {
       }
     }
   }]);
-  return InviteServerTransaction;
 }(EventEmitter);
 /**
  * INVITE:
