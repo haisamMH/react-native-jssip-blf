@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+### 3.8.0
+
+* Add compact `siptrace` UA event: structured, metadata-only signaling trace
+  (INVITE/180/200-OK transmit+transport result, 2xx retransmissions, ACK
+  rx/tx/timeout, CANCEL rx incl. silently-ignored ones, BYE rx/tx, re-INVITE/
+  UPDATE/REFER, failure/end causes with originator, ICE connection states,
+  unmatched CANCEL / in-dialog requests at the UA). Zero-cost when no
+  listener is attached; never carries SDP, headers or identities.
+* Guard `answer()` against transmitting a stale preAnswer 200 OK: if the
+  session left STATUS_ANSWERED (e.g. CANCELed while ringing), the stored
+  reply is dropped and INVALID_STATE_ERROR is thrown instead of silently
+  resurrecting a dead dialog.
+
 ### 3.7.2
 
 
